@@ -18,8 +18,8 @@ For example:
 
 fn part_one(input: &String) -> i32 {
     let mut idx = 0;
+    let mut string = String::new();
     loop {
-        let mut string = String::new();
         let digest = md5::compute(format!("{input}{idx}"));
         for b in digest.0 {
             write!(string, "{:02x}", b).unwrap();
@@ -29,6 +29,7 @@ fn part_one(input: &String) -> i32 {
             break;
         }
         idx += 1;
+        string.clear();
     }
     idx
 }
@@ -41,8 +42,8 @@ Now find one that starts with six zeroes.
 
 fn part_two(input: &String, idx_in: i32) {
     let mut idx = idx_in;
+    let mut string = String::new();
     loop {
-        let mut string = String::new();
         let digest = md5::compute(format!("{input}{idx}"));
         for b in digest.0 {
             write!(string, "{:02x}", b).unwrap();
@@ -52,6 +53,7 @@ fn part_two(input: &String, idx_in: i32) {
             break;
         }
         idx += 1;
+        string.clear();
     }
 }
 
