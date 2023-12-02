@@ -1,6 +1,6 @@
 use std::fs::read_to_string;
 
-static DEBUG: bool = true;
+static DEBUG: bool = false;
 
 /*
 --- Day 5: Doesn't He Have Intern-Elves For This? ---
@@ -106,64 +106,58 @@ For example:
 
 How many strings are nice under these new rules?
 */
-
 fn part_two(input: &String) {
     let mut nice = 0;
+
     for line in input.lines() {
-        // check for non overlapping pairs
-        let mut has_non_overlapping_pair = false;
-        let mut characters1 = line.chars().peekable();
-        let mut pairs = Vec::<(String, i32)>::with_capacity(line.len());
-        let mut idx = 0;
-        while let Some(character) = characters1.next() {
-            if let Some(other) = characters1.peek() {
-                pairs.push((format!("{character}{other}"), idx));
-            }
-            idx += 1;
-        }
-        let mut pairs_iter = pairs.iter();
-        while let Some((pair, index)) = pairs_iter.next() {
-            if let Some((other_pair, other_index)) = pairs_iter.find(|(other_pair, other_index)| {
-                *pair == *other_pair && (*index - *other_index).abs() > 1
-            }) {
-                has_non_overlapping_pair = true;
-                if DEBUG {
-                    println!(
-                        "Non overlapping: {} {}, {} {} {line}",
-                        *pair, *other_pair, *index, *other_index
-                    );
+        let mut repeat_pair = false;
+        for idx in 0..line.len() {
+            let mut line_chars = line.chars();
+            let first = line_chars.nth(idx);
+            let second = line_chars.next();
+            match (first, second) {
+                (Some(a), Some(b)) => {
+                    if idx + 2 > line.len() - 1 {
+                        continue;
+                    }
+                    let rest = &line[idx + 2..];
+                    if !DEBUG {
+                        println!("{a}{b} | {rest}");
+                    }
+                    if rest.contains(format!("{a}{b}").as_str()) {
+                        repeat_pair = true;
+                        break;
+                    }
                 }
-                break;
+                _ => {}
             }
         }
-        if !has_non_overlapping_pair {
-            if DEBUG {
-                println!("Miss: has_non_overlapping_pair={has_non_overlapping_pair} ({line})");
-            }
+        if !repeat_pair {
             continue;
         }
 
-        // check for same characters separated by one
-        let mut has_same_sep_by_one = false;
-        let characters = line.chars().collect::<Vec<char>>();
-        if characters.len() > 2 {
-            for index in 0..characters.len() - 2 {
-                let current = characters[index];
-                let mid = characters[index + 1];
-                let other = characters[index + 2];
-                if current == other {
-                    has_same_sep_by_one = true;
+        let mut contains_split = false;
+        for idx in 0..line.len() {
+            let mut line_chars = line.chars();
+            let first = line_chars.nth(idx);
+            line_chars.next();
+            let second = line_chars.next();
+            match (first, second) {
+                (Some(a), Some(b)) => {
                     if DEBUG {
-                        println!("Has two split by one: {current} {mid} {other} {line}");
+                        println!("{line}");
+                        println!("{}{}", " ".repeat(idx), "^ ^");
+                        println!("{}{a} {b}", " ".repeat(idx));
                     }
-                    break;
+                    if a == b {
+                        contains_split = true;
+                        break;
+                    }
                 }
+                _ => {}
             }
         }
-        if !has_same_sep_by_one {
-            if DEBUG {
-                println!("Miss: has_same_sep_by_one={has_same_sep_by_one} ({line})");
-            }
+        if !contains_split {
             continue;
         }
 
